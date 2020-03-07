@@ -2,66 +2,121 @@
 *{font-family:"Helvetica", "微軟正黑體", "Microsoft JhengHei";}
 tr:nth-child(even) {background: #CCC}
 tr:nth-child(odd) {background: #FFF}
-#mask_table{margin-left:auto; margin-right:auto;}
+table{margin-left:auto; margin-right:auto;}
+p,h1{text-align:center;}
 </style>
-<h1 style='text-align:center;'>台中市北屯區口罩剩餘數量</h1>
-<p style='text-align:center;'>朱庭宏</p>
-<p id='num' style='text-align:center;'></p>
-<p id='sum' style='text-align:center;'></p>
-<p id='update' style='text-align:center;'></p>
-<table id='mask_table'>
-<tr>
-   <th>醫事機構名稱</th>
-   <th>醫事機構地址</th>
-   <th>成人口罩剩餘數</th>
-</tr>
+
+<h1>台中市口罩剩餘數量查詢系統</h1>
+<p id='num'></p>
+<p id='sum'></p>
+<p>資料來源:健康保險資料開放服務</p>
+<p id='update'></p>
+
+<div style='text-align:center; margin-bottom: 10px;'>
+    <select id='region_select' onchange="search();"></select>
+    <span id='region'>&emsp;查詢區域: </span>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>醫事機構名稱</th>
+        <th>醫事機構地址</th>
+        <th>成人口罩剩餘數</th>
+    </tr>
+    </thead>
+    <tbody id='mask_table'></tbody>
 </table>
+<p>copyright &#169; 2020 朱庭宏</p>
+
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
-var i=0;
-const cors = "https://cors-anywhere.herokuapp.com/";
-const url = "https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv";
+selection();
+search();
 
-d3.csv(`${cors}${url}`, function(data) {
-    //console.log(data);
-    var pharmacy = data["醫事機構名稱"];
-    var address = data["醫事機構地址"];
-    var adult = data["成人口罩剩餘數"];
-    var update = data["來源資料時間"];
-    
-    var region = address.indexOf("臺中市北屯區");
-    if (region>-1){
-      var tr = document.createElement("tr");
-      var td1 = document.createElement("td");
-      td1.innerHTML = pharmacy;
-      var td2 = document.createElement("td");
-      td2.innerHTML = address;
-      var td3 = document.createElement("td");
-      td3.innerHTML = adult;
-
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-
-      document.getElementById('mask_table').appendChild(tr);
-      i ++;
+function selection(){
+    //新增下拉清單選項
+    var RegionList = ['北屯區','西屯區','南屯區','中區','東區','西區','南區','北區','豐原區','大里區','太平區','清水區','沙鹿區','大甲區','東勢區','梧棲區','烏日區','神岡區','大肚區','大雅區','后里區','霧峰區','潭子區','龍井區','外埔區','和平區','石岡區','大安區','新社區'];
+    var length = document.getElementById('region_select').options.length;
+    for (let i=0; i<length; i++){
+        document.getElementById('region_select').remove(i);
     }
-    document.getElementById('num').innerText = "共" + i + "間";
-    count(i);
-    document.getElementById('update').innerText = "資料更新時間" + update;
-});
-clearvar();
+    length = null;
+    for (let i=0; i<RegionList.length; i++){
+        var option = document.createElement("option");
+        option.innerText = RegionList[i];
+        option.value = RegionList[i];
+        document.getElementById('region_select').appendChild(option);
+    }
 
+    //建立全市之選項
+    var option = document.createElement("option");
+    option.innerText = '全市';
+    option.value = '';
+    document.getElementById('region_select').appendChild(option);
+    option = null;
+
+    document.getElementById('region').innerHTML = '&emsp;查詢區域: 北屯區';
+}
+
+function search(){
+    //鎖住選項
+    document.getElementById('region_select').disabled = true;    
+    //清除原資料
+    removerow();
+
+    var i=0;
+    const cors = "https://cors-anywhere.herokuapp.com/"; //跨域請求
+    const url = "https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"; //健保資訊公開資料
+     
+    d3.csv(`${cors}${url}`, function(data) {
+        //console.log(data);
+        var pharmacy = data["醫事機構名稱"];
+        var address = data["醫事機構地址"];
+        var adult = data["成人口罩剩餘數"];
+        var update = data["來源資料時間"];
+        
+        var str = String("臺中市" + document.getElementById('region_select').value);
+        document.getElementById('region').innerHTML = '&emsp;查詢區域: ' + str;
+        var region = address.indexOf(str);
+        if (region>-1){
+        var tr = document.createElement("tr");
+        var td1 = document.createElement("td");
+        td1.innerHTML = pharmacy;
+        var td2 = document.createElement("td");
+        td2.innerHTML = address;
+        var td3 = document.createElement("td");
+        td3.innerHTML = adult;
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        document.getElementById('mask_table').appendChild(tr);
+        i++;
+        }
+
+        document.getElementById('num').innerText = "共" + i + "間";
+        count(i);
+        document.getElementById('update').innerText = "資料更新時間" + update;
+        //解鎖選項
+        document.getElementById('region_select').disabled = false;    
+    });
+}
 
 function count(i){
     var sum = 0;
-    for (let r=1; r<=i; r++){
+    for (let r=0; r<i; r++){
         sum = sum+Number(document.getElementById('mask_table').rows[r].cells[2].innerText);
     }
     document.getElementById('sum').innerText = "共計" + sum + "個成人口罩";
 }
 
-function clearvar(){
-    i = null;
+function removerow(){   
+    var row = document.getElementById("mask_table").rows.length;
+    for (let i=0; i<row ;i++){
+        document.getElementById("mask_table").deleteRow(-1);
+    }
+    row = null;
 }
 </script>
