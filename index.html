@@ -13,6 +13,7 @@ p,h1{text-align:center;}
 <h1>台中市口罩剩餘數量查詢系統</h1>
 <p id='num'></p>
 <p id='sum'></p>
+<p id='sumchild'></p>
 <p>資料來源:健康保險資料開放服務</p>
 <p id='update'></p>
 
@@ -27,6 +28,7 @@ p,h1{text-align:center;}
         <th>醫事機構名稱</th>
         <th>醫事機構地址</th>
         <th>成人口罩剩餘數</th>
+        <th>兒童口罩剩餘數</th>
     </tr>
     </thead>
     <tbody id='mask_table'></tbody>
@@ -80,7 +82,9 @@ function search(){
         var pharmacy = data["醫事機構名稱"];
         var address = data["醫事機構地址"];
         var adult = data["成人口罩剩餘數"];
+        var child = data["兒童口罩剩餘數"];
         var update = data["來源資料時間"];
+
         
         var str = String("臺中市" + document.getElementById('region_select').value);
         document.getElementById('region').innerHTML = '&emsp;查詢區域: ' + str;
@@ -93,10 +97,13 @@ function search(){
         td2.innerHTML = address;
         var td3 = document.createElement("td");
         td3.innerHTML = adult;
+        var td4 = document.createElement("td");
+        td4.innerHTML = child;
 
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
+        tr.appendChild(td4);
 
         document.getElementById('mask_table').appendChild(tr);
         i++;
@@ -104,6 +111,7 @@ function search(){
 
         document.getElementById('num').innerText = "共" + i + "間";
         count(i);
+        count2(i);
         document.getElementById('update').innerText = "資料更新時間:" + update;
         //解鎖選項
         document.getElementById('region_select').disabled = false;    
@@ -116,7 +124,16 @@ function count(i){
     for (let r=0; r<i; r++){
         sum = sum + Number(document.getElementById('mask_table').rows[r].cells[2].innerText);
     }
-    document.getElementById('sum').innerText = "共計" + sum + "個成人口罩";
+    document.getElementById('sum').innerText = "共計" + sum + "個成人口罩";    
+}
+
+function count2(i){
+    var sum2 = 0;
+    for (let r=0; r<i; r++){
+        sum2 = sum2 + Number(document.getElementById('mask_table').rows[r].cells[3].innerText);
+    }
+    console.log(sum2);
+    document.getElementById('sumchild').innerText = "共計" + sum2 + "個兒童口罩";
 }
 
 function removerow(){   
