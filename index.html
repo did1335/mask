@@ -19,7 +19,7 @@ p,h1{text-align:center;}
 
 <div style='text-align:center; margin-bottom: 10px;'>
     <select id='region_select'></select>
-    <span id='region'>&emsp;查詢區域: </span>
+    <span id='region'>&emsp; </span>
     <button onclick="search();">查詢</button>
 </div>
 
@@ -63,8 +63,6 @@ function selection(){
     option.value = '';
     document.getElementById('region_select').appendChild(option);
     option = null;
-
-    document.getElementById('region').innerHTML = '&emsp;查詢區域: 北屯區';
 }
 
 function search(){
