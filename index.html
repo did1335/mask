@@ -18,8 +18,9 @@ p,h1{text-align:center;}
 <p id='update'></p>
 
 <div style='text-align:center; margin-bottom: 10px;'>
-    <select id='region_select' onchange="search();"></select>
+    <select id='region_select'></select>
     <span id='region'>&emsp;查詢區域: </span>
+    <button onclick="search();">查詢</button>
 </div>
 
 <table>
@@ -40,7 +41,6 @@ https://github.com/d3/d3/blob/master/LICENSE-->
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
 selection();
-search();
 
 function selection(){
     //新增下拉清單選項
