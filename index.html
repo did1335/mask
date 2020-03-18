@@ -1,4 +1,4 @@
-<!--台中市口罩查詢系統
+﻿<!--台中市口罩查詢系統
     copyright 2020 朱庭宏
     BSD 3-Clause授權
 -->
@@ -161,7 +161,7 @@
         function removerow(){ 
             var row = msk.rows.length;
             for (let i=0; i<row ;i++){
-                document.getElementById("mask_table").deleteRow(-1);
+                msk.deleteRow(-1);
             }
             row = null;
         }
