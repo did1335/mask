@@ -2,8 +2,18 @@
     copyright 2020 朱庭宏
     BSD 3-Clause授權
 -->
+<!DOCTYPE html>
+<html>
+<head>   
+   <title>台中市口罩資訊系統</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+
 <style>
     *{font-family:"Helvetica", "微軟正黑體", "Microsoft JhengHei";}
+    th{background-color: #e4f2ff;}
     tr:nth-child(even) {background: #CCC}
     tr:nth-child(odd) {background: #FFF}
     table{margin-left:auto; margin-right:auto;}
@@ -14,6 +24,7 @@
     .info2{background-color:blue;}
     .info3{background-color:red;}
     .num{font-size: 50pt; margin-top: 20px; margin-bottom: 20px;}
+    #search{cursor: pointer;}
 </style>
 
 <h1>台中市口罩剩餘數量查詢系統</h1>
@@ -30,7 +41,7 @@
 <div style='text-align:center; margin-bottom: 10px;'>
     <select id='region_select'></select>
     <span id='region'>&emsp; </span>
-    <button onclick="search();">查詢</button>
+    <button id='search' onclick="search();">查詢</button>
 </div>
 
 <table>
@@ -50,6 +61,7 @@
 https://github.com/d3/d3/blob/master/LICENSE-->
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
+var msk = document.getElementById('mask_table');
 selection();
 
 function selection(){
@@ -85,7 +97,7 @@ function search(){
     var i=0;
     const cors = "https://cors-anywhere.herokuapp.com/"; //跨域請求
     const url = "https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"; //健保資訊公開資料
-     
+        
     d3.csv(`${cors}${url}`, function(data) {
         //console.log(data);
         var pharmacy = data["醫事機構名稱"];
@@ -93,7 +105,6 @@ function search(){
         var adult = data["成人口罩剩餘數"];
         var child = data["兒童口罩剩餘數"];
         var update = data["來源資料時間"];
-
         
         var str = String("臺中市" + document.getElementById('region_select').value);
         document.getElementById('region').innerHTML = '&emsp;查詢區域: ' + str;
@@ -114,7 +125,7 @@ function search(){
         tr.appendChild(td3);
         tr.appendChild(td4);
 
-        document.getElementById('mask_table').appendChild(tr);
+        msk.appendChild(tr);
         i++;
         }
 
@@ -128,27 +139,29 @@ function search(){
 }
 
 function count(i){
-    //口罩計數
+    //成人口罩計數
     var sum = 0;
     for (let r=0; r<i; r++){
-        sum = sum + Number(document.getElementById('mask_table').rows[r].cells[2].innerText);
+        sum = sum + Number(msk.rows[r].cells[2].innerText);
     }
     document.getElementById('adult').innerText = String(sum);    
 }
 
 function count2(i){
+    //兒童口罩計數
     var sum2 = 0;
     for (let r=0; r<i; r++){
-        sum2 = sum2 + Number(document.getElementById('mask_table').rows[r].cells[3].innerText);
+        sum2 = sum2 + Number(msk.rows[r].cells[3].innerText);
     }
     document.getElementById('child').innerText = String(sum2);
 }
 
-function removerow(){   
-    var row = document.getElementById("mask_table").rows.length;
+function removerow(){ 
+    var row = msk.rows.length;
     for (let i=0; i<row ;i++){
         document.getElementById("mask_table").deleteRow(-1);
     }
     row = null;
 }
 </script>
+</html>
