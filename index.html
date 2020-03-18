@@ -1,167 +1,170 @@
-﻿<!--台中市口罩查詢系統
+<!--台中市口罩查詢系統
     copyright 2020 朱庭宏
     BSD 3-Clause授權
 -->
 <!DOCTYPE html>
 <html>
-<head>   
-   <title>台中市口罩資訊系統</title>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-</head>
+    <head>   
+       <title>台中市口罩資訊系統</title>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<style>
-    *{font-family:"Helvetica", "微軟正黑體", "Microsoft JhengHei";}
-    th{background-color: #e4f2ff;}
-    tr:nth-child(even) {background: #CCC}
-    tr:nth-child(odd) {background: #FFF}
-    table{margin-left:auto; margin-right:auto;}
-    p,h1{text-align:center;}
-    .info{display: -webkit-flex; -webkit-flex-wrap: wrap; display: flex; flex-wrap: wrap; width:70%; width:70vw; margin-left: auto; margin-right: auto; zoom: 0.6;}
-    .info div{width: 30%; height: 250px; border-radius: 10px; color:white; font-size:22pt; margin-right: 10px; margin-inline-start: auto; margin-inline-end: auto; margin-block-start: auto; margin-block-end: auto;}
-    .info1{background-color:green;}
-    .info2{background-color:blue;}
-    .info3{background-color:red;}
-    .num{font-size: 50pt; margin-top: 20px; margin-bottom: 20px;}
-    #search{cursor: pointer;}
-</style>
+       <style>
+            *{font-family:"Helvetica", "微軟正黑體", "Microsoft JhengHei";}
+            th{background-color: #e4f2ff;}
+            tr:nth-child(even) {background: #CCC}
+            tr:nth-child(odd) {background: #FFF}
+            table{margin-left:auto; margin-right:auto;}
+            p,h1{text-align:center;}
+            .info{display: -webkit-flex; -webkit-flex-wrap: wrap; display: flex; flex-wrap: wrap; width:70%; width:70vw; margin-left: auto; margin-right: auto; zoom: 0.6;}
+            .info div{width: 30%; height: 250px; border-radius: 10px; color:white; font-size:22pt; margin-right: 10px; margin-inline-start: auto; margin-inline-end: auto; margin-block-start: auto; margin-block-end: auto;}
+            .info1{background-color:green;}
+            .info2{background-color:blue;}
+            .info3{background-color:red;}
+            .num{font-size: 50pt; margin-top: 20px; margin-bottom: 20px;}
+            #search{cursor: pointer;}
+       </style>
+    </head>
 
-<h1>台中市口罩剩餘數量查詢系統</h1>
+    <body>    
+        <h1>台中市口罩剩餘數量查詢系統</h1>
 
-<div class="info">
-    <div class='info1'><p>藥局間數</p><p class='num' id='pharmacy'>0</p></p></div>
-    <div class='info2'><p>成人口罩剩餘數</p><p class='num' id='adult'>0</p></p></div>
-    <div class='info3'><p>兒童口罩剩餘數</p><p class='num' id='child'>0</p></p></div>
-</div>
+        <div class="info">
+            <div class='info1'><p>藥局間數</p><p class='num' id='pharmacy'>0</p></p></div>
+            <div class='info2'><p>成人口罩剩餘數</p><p class='num' id='adult'>0</p></p></div>
+            <div class='info3'><p>兒童口罩剩餘數</p><p class='num' id='child'>0</p></p></div>
+        </div>
 
-<p>資料來源: 健康保險資料開放服務</p>
-<p id='update'></p>
+        <p>資料來源: 健康保險資料開放服務</p>
+        <p id='update'></p>
 
-<div style='text-align:center; margin-bottom: 10px;'>
-    <select id='region_select'></select>
-    <span id='region'>&emsp; </span>
-    <button id='search' onclick="search();">查詢</button>
-</div>
+        <div style='text-align:center; margin-bottom: 10px;'>
+            <select id='region_select'></select>
+            <span id='region'>&emsp; </span>
+            <button id='search' onclick="search();">查詢</button>
+        </div>
 
-<table>
-    <thead>
-    <tr>
-        <th>醫事機構名稱</th>
-        <th>醫事機構地址</th>
-        <th>成人口罩剩餘數</th>
-        <th>兒童口罩剩餘數</th>
-    </tr>
-    </thead>
-    <tbody id='mask_table'></tbody>
-</table>
-<p>copyright &#169; 2020 朱庭宏</p>
+        <table>
+            <thead>
+            <tr>
+                <th>醫事機構名稱</th>
+                <th>醫事機構地址</th>
+                <th>成人口罩剩餘數</th>
+                <th>兒童口罩剩餘數</th>
+            </tr>
+            </thead>
+            <tbody id='mask_table'></tbody>
+        </table>
 
-<!--D3 libarary license
-https://github.com/d3/d3/blob/master/LICENSE-->
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<script>
-var msk = document.getElementById('mask_table');
-selection();
+        <p>copyright &#169; 2020 朱庭宏</p>
 
-function selection(){
-    //新增下拉清單選項
-    var RegionList = ['北屯區','西屯區','南屯區','中區','東區','西區','南區','北區','豐原區','大里區','太平區','清水區','沙鹿區','大甲區','東勢區','梧棲區','烏日區','神岡區','大肚區','大雅區','后里區','霧峰區','潭子區','龍井區','外埔區','和平區','石岡區','大安區','新社區'];
-    var length = document.getElementById('region_select').options.length;
-    //清除選項
-    for (let i=0; i<length; i++){
-        document.getElementById('region_select').remove(i);
-    }
-    length = null;
-    //建立全市之選項
-    var option = document.createElement("option");
-    option.innerText = '全市';
-    option.value = '';
-    document.getElementById('region_select').appendChild(option);
-    option = null;
-    //增加選項
-    for (let i=0; i<RegionList.length; i++){
-        var option = document.createElement("option");
-        option.innerText = RegionList[i];
-        option.value = RegionList[i];
-        document.getElementById('region_select').appendChild(option);
-    }    
-}
+        <!--D3 libarary license
+        https://github.com/d3/d3/blob/master/LICENSE-->
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+        <script>
+        var msk = document.getElementById('mask_table');
+        selection();
 
-function search(){
-    //鎖住選項
-    document.getElementById('region_select').disabled = true;    
-    //清除原資料
-    removerow();
-
-    var i=0;
-    const cors = "https://cors-anywhere.herokuapp.com/"; //跨域請求
-    const url = "https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"; //健保資訊公開資料
-        
-    d3.csv(`${cors}${url}`, function(data) {
-        //console.log(data);
-        var pharmacy = data["醫事機構名稱"];
-        var address = data["醫事機構地址"];
-        var adult = data["成人口罩剩餘數"];
-        var child = data["兒童口罩剩餘數"];
-        var update = data["來源資料時間"];
-        
-        var str = String("臺中市" + document.getElementById('region_select').value);
-        document.getElementById('region').innerHTML = '&emsp;查詢區域: ' + str;
-        var region = address.indexOf(str);
-        if (region>-1){
-        var tr = document.createElement("tr");
-        var td1 = document.createElement("td");
-        td1.innerHTML = pharmacy;
-        var td2 = document.createElement("td");
-        td2.innerHTML = address;
-        var td3 = document.createElement("td");
-        td3.innerHTML = adult;
-        var td4 = document.createElement("td");
-        td4.innerHTML = child;
-
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        tr.appendChild(td3);
-        tr.appendChild(td4);
-
-        msk.appendChild(tr);
-        i++;
+        function selection(){
+            //新增下拉清單選項
+            var RegionList = ['北屯區','西屯區','南屯區','中區','東區','西區','南區','北區','豐原區','大里區','太平區','清水區','沙鹿區','大甲區','東勢區','梧棲區','烏日區','神岡區','大肚區','大雅區','后里區','霧峰區','潭子區','龍井區','外埔區','和平區','石岡區','大安區','新社區'];
+            var length = document.getElementById('region_select').options.length;
+            //清除選項
+            for (let i=0; i<length; i++){
+                document.getElementById('region_select').remove(i);
+            }
+            length = null;
+            //建立全市之選項
+            var option = document.createElement("option");
+            option.innerText = '全市';
+            option.value = '';
+            document.getElementById('region_select').appendChild(option);
+            option = null;
+            //增加選項
+            for (let i=0; i<RegionList.length; i++){
+                var option = document.createElement("option");
+                option.innerText = RegionList[i];
+                option.value = RegionList[i];
+                document.getElementById('region_select').appendChild(option);
+            }    
         }
 
-        document.getElementById('pharmacy').innerText = String(i);
-        count(i);
-        count2(i);
-        document.getElementById('update').innerText = "資料更新時間: " + update;
-        //解鎖選項
-        document.getElementById('region_select').disabled = false;    
-    });
-}
+        function search(){
+            //鎖住選項
+            document.getElementById('region_select').disabled = true;    
+            //清除原資料
+            removerow();
 
-function count(i){
-    //成人口罩計數
-    var sum = 0;
-    for (let r=0; r<i; r++){
-        sum = sum + Number(msk.rows[r].cells[2].innerText);
-    }
-    document.getElementById('adult').innerText = String(sum);    
-}
+            var i=0;
+            const cors = "https://cors-anywhere.herokuapp.com/"; //跨域請求
+            const url = "https://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"; //健保資訊公開資料
 
-function count2(i){
-    //兒童口罩計數
-    var sum2 = 0;
-    for (let r=0; r<i; r++){
-        sum2 = sum2 + Number(msk.rows[r].cells[3].innerText);
-    }
-    document.getElementById('child').innerText = String(sum2);
-}
+            d3.csv(`${cors}${url}`, function(data) {
+                //console.log(data);
+                var pharmacy = data["醫事機構名稱"];
+                var address = data["醫事機構地址"];
+                var adult = data["成人口罩剩餘數"];
+                var child = data["兒童口罩剩餘數"];
+                var update = data["來源資料時間"];
 
-function removerow(){ 
-    var row = msk.rows.length;
-    for (let i=0; i<row ;i++){
-        document.getElementById("mask_table").deleteRow(-1);
-    }
-    row = null;
-}
-</script>
+                var str = String("臺中市" + document.getElementById('region_select').value);
+                document.getElementById('region').innerHTML = '&emsp;查詢區域: ' + str;
+                var region = address.indexOf(str);
+                if (region>-1){
+                var tr = document.createElement("tr");
+                var td1 = document.createElement("td");
+                td1.innerHTML = pharmacy;
+                var td2 = document.createElement("td");
+                td2.innerHTML = address;
+                var td3 = document.createElement("td");
+                td3.innerHTML = adult;
+                var td4 = document.createElement("td");
+                td4.innerHTML = child;
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+
+                msk.appendChild(tr);
+                i++;
+                }
+
+                document.getElementById('pharmacy').innerText = String(i);
+                count(i);
+                count2(i);
+                document.getElementById('update').innerText = "資料更新時間: " + update;
+                //解鎖選項
+                document.getElementById('region_select').disabled = false;    
+            });
+        }
+
+        function count(i){
+            //成人口罩計數
+            var sum = 0;
+            for (let r=0; r<i; r++){
+                sum = sum + Number(msk.rows[r].cells[2].innerText);
+            }
+            document.getElementById('adult').innerText = String(sum);    
+        }
+
+        function count2(i){
+            //兒童口罩計數
+            var sum2 = 0;
+            for (let r=0; r<i; r++){
+                sum2 = sum2 + Number(msk.rows[r].cells[3].innerText);
+            }
+            document.getElementById('child').innerText = String(sum2);
+        }
+
+        function removerow(){ 
+            var row = msk.rows.length;
+            for (let i=0; i<row ;i++){
+                document.getElementById("mask_table").deleteRow(-1);
+            }
+            row = null;
+        }
+        </script>
+    </body>
 </html>
